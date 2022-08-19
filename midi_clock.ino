@@ -1,7 +1,10 @@
 #include <Wire.h>
+// #include <DS3231.h>
+#include "RTClib.h"
 #include <LiquidCrystal_I2C.h>
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
+RTC_DS3231 rtc;
 
 int SNARE         = 36;
 int CLAP          = 37;
@@ -23,10 +26,27 @@ void setup()
   lcd.init();
   // Print a message to the LCD.
   lcd.backlight();
-  lcd.setCursor(1, 0);
-  lcd.print("hello everyone");
-  lcd.setCursor(1, 1);
-  lcd.print("konichiwaa");
+  //lcd.setCursor(1, 0);
+  //lcd.print("hello everyone");
+  //lcd.setCursor(1, 1);
+  //lcd.print("konichiwaa");
+
+  if (! rtc.begin()) {
+    lcd.print("Couldn't find RTC");
+    while (1);
+  }
+
+  if (rtc.lostPower()) {
+    lcd.print("RTC lost power, lets set the time!");
+
+    // Comment out below lines once you set the date & time.
+    // Following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+
+    // Following line sets the RTC with an explicit date & time
+    // for example to set January 27 2017 at 12:56 you would call:
+    // rtc.adjust(DateTime(2017, 1, 27, 12, 56, 0));
+  }
 }
 
 void loop()
@@ -66,6 +86,23 @@ void loop()
   //playDrumBeat(42);
   //playDrumBeat(44);
   //playDrumBeat(39);
+
+  DateTime now = rtc.now();
+  
+  lcd.setCursor(1, 0);
+  lcd.print(now.year(), DEC);
+  lcd.print('/');
+  lcd.print(now.month(), DEC);
+  lcd.print('/');
+  lcd.print(now.day(), DEC);
+  
+  lcd.setCursor(1, 1);
+  lcd.print(now.hour(), DEC);
+  lcd.print(':');
+  lcd.print(now.minute(), DEC);
+  lcd.print(':');
+  lcd.print(now.second(), DEC);
+
 }
 
 void playMIDINote(byte channel, byte note, byte velocity)
