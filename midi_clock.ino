@@ -29,10 +29,6 @@ void setup()
   lcd.init();
   // Print a message to the LCD.
   lcd.backlight();
-  //lcd.setCursor(1, 0);
-  //lcd.print("hello everyone");
-  //lcd.setCursor(1, 1);
-  //lcd.print("konichiwaa");
 
   if (! rtc.begin()) {
     lcd.print("Couldn't find RTC");
@@ -59,21 +55,7 @@ void setup()
 
 void loop()
 {
-  DateTime now = rtc.now();
-
-  lcd.setCursor(1, 0);
-  lcd.print(now.year(), DEC);
-  lcd.print('/');
-  lcd.print(now.month(), DEC);
-  lcd.print('/');
-  lcd.print(now.day(), DEC);
-
-  lcd.setCursor(1, 1);
-  lcd.print(now.hour(), DEC);
-  lcd.print(':');
-  lcd.print(now.minute(), DEC);
-  lcd.print(':');
-  lcd.print(now.second(), DEC);
+  printTime();
 
   //Play a chromatic scale starting on middle C (60)
   for (int note = 0; note < 72; note++)
@@ -89,11 +71,25 @@ void loop()
     delay(60);
   }
 
-
   for (int note : drums) { // for each element in the array
     playDrumBeat(note);
   }
 
+}
+
+void printTime() {
+  DateTime now = rtc.now();
+
+  char date_str[15];
+  char time_str[15];
+
+  lcd.setCursor(1, 0);
+  sprintf(date_str, "%d-%02d-%02d", now.year(), now.month(), now.day());
+  lcd.print(date_str);
+
+  lcd.setCursor(1, 1);
+  sprintf(time_str, "%02d:%02d:%02d", now.hour(), now.minute(), now.second());
+  lcd.print(time_str);
 }
 
 void playMIDINote(byte channel, byte note, byte velocity)
