@@ -49,7 +49,7 @@ void setup()
   }
   //rtc.adjust(DateTime(2022, 10, 13, 10, 59, 55));
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  //rtc.adjust(DateTime(2022, 10, 13, 10, 44, 55));
+  //rtc.adjust(DateTime(2022, 10, 13, 10, 29, 55));
   prevHour = rtc.now().hour();
 
   /*
