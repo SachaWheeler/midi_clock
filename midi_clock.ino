@@ -31,8 +31,6 @@ void setup()
   //Set up serial output with standard MIDI baud rate
   Serial.begin(31250);
 
-  //pinMode(buttonPin, INPUT);
-
   lcd.init();
   lcd.backlight();
 
@@ -42,27 +40,12 @@ void setup()
   }
 
   if (rtc.lostPower()) {
-    lcd.print("RTC lost power, lets set the time!");
-
-    // Following line sets the RTC to the date & time this sketch was compiled
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // sets the time to the compile time
   }
-  //rtc.adjust(DateTime(2022, 10, 13, 10, 59, 55));
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+
+  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   //rtc.adjust(DateTime(2022, 10, 13, 10, 29, 55));
   prevHour = rtc.now().hour();
-
-  /*
-    // reset midi just in case
-    for (int note = 0; note < 72; note++)
-    {
-      //Turn note off (velocity = 0)
-      playMIDINote(MOOG, note, 0);
-    }
-    for (int note : drums) { // for each drum
-      playMIDINote(VERMONA, note, 0);
-    }
-  */
 }
 
 void loop()
@@ -70,9 +53,7 @@ void loop()
   DateTime now = rtc.now();
   printTime(now);
 
-  if (once_through && now.hour() != prevHour)
-  {
-    // announce the HOUR
+  if (once_through && now.hour() != prevHour) {
     chime_hour(now);
     prevHour = now.hour();
     done_15 = done_30 = done_45 = false;
@@ -87,26 +68,9 @@ void loop()
     done_45 = true;
   }
 
-  /*
-    //Play a chromatic scale starting on middle C (60)
-    for (int note = 0; note < 72; note++)
-    {
-      //Play a note
-      playMIDINote(MOOG, note, 100);
-      //Hold note for 60 ms (delay() used for simplicity)
-      delay(60);
-
-      //Turn note off (velocity = 0)
-      playMIDINote(MOOG, note, 0);
-      //Pause for 60 ms
-      delay(60);
-    }
-  */
-  //for (int note : drums) { // for each element in the array
-  // playDrumBeat(note);
-  //}
   once_through = true;
 }
+
 void play_drum(int drum) {
   playMIDINote(VERMONA, drum, 100);
   delay(60);
