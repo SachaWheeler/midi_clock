@@ -21,13 +21,18 @@ const int drums [] = {SNARE, CLAP, HI_HAT_2, HI_HAT_2_OPEN, KICK, DRUM_1, DRUM_2
 const int MOOG = 1;
 const int VERMONA = 10;
 
+int prevHour;
+int buttonPin = 7;
+bool once_through = false;
+
 void setup()
 {
   //Set up serial output with standard MIDI baud rate
   Serial.begin(31250);
 
+  //pinMode(buttonPin, INPUT);
+
   lcd.init();
-  // Print a message to the LCD.
   lcd.backlight();
 
   if (! rtc.begin()) {
@@ -41,45 +46,77 @@ void setup()
     // Following line sets the RTC to the date & time this sketch was compiled
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
+  //rtc.adjust(DateTime(2022, 10, 13, 10, 59, 55));
+  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  prevHour = rtc.now().hour();
 
-  // reset midi just in case
-  for (int note = 0; note < 72; note++)
-  {
-    //Turn note off (velocity = 0)
-    playMIDINote(MOOG, note, 0);
-  }
-  for (int note : drums) { // for each element in the array
-    playMIDINote(VERMONA, note, 0);
-  }
+  /*
+    // reset midi just in case
+    for (int note = 0; note < 72; note++)
+    {
+      //Turn note off (velocity = 0)
+      playMIDINote(MOOG, note, 0);
+    }
+    for (int note : drums) { // for each drum
+      playMIDINote(VERMONA, note, 0);
+    }
+  */
 }
 
 void loop()
 {
-  printTime();
+  DateTime now = rtc.now();
+  printTime(now);
 
-  //Play a chromatic scale starting on middle C (60)
-  for (int note = 0; note < 72; note++)
+  if (once_through && now.hour() != prevHour)
   {
-    //Play a note
-    playMIDINote(MOOG, note, 100);
-    //Hold note for 60 ms (delay() used for simplicity)
-    delay(60);
-
-    //Turn note off (velocity = 0)
-    playMIDINote(MOOG, note, 0);
-    //Pause for 60 ms
-    delay(60);
+    // announce the HOUR
+    chime_hour(now);
+    prevHour = now.hour();
   }
 
-  for (int note : drums) { // for each element in the array
-    playDrumBeat(note);
-  }
+  /*
+    //Play a chromatic scale starting on middle C (60)
+    for (int note = 0; note < 72; note++)
+    {
+      //Play a note
+      playMIDINote(MOOG, note, 100);
+      //Hold note for 60 ms (delay() used for simplicity)
+      delay(60);
 
+      //Turn note off (velocity = 0)
+      playMIDINote(MOOG, note, 0);
+      //Pause for 60 ms
+      delay(60);
+    }
+  */
+  //for (int note : drums) { // for each element in the array
+  // playDrumBeat(note);
+  //}
+  once_through = true;
+}
+void play_drum(int drum) {
+  playMIDINote(VERMONA, drum, 100);
+  delay(60);
+  playMIDINote(VERMONA, drum, 0);
 }
 
-void printTime() {
-  DateTime now = rtc.now();
+void chime_hour(DateTime now) {
+  play_drum(KICK);
+  delay(110);
+  play_drum(KICK);
+  delay(150);
+  play_drum(HI_HAT_1_OPEN);
+  delay(200);
 
+  for (int x = 0; x < now.hour(); x++) {
+    play_drum(CLAP);
+    if((x+1)%3==0) delay(110);
+    delay(90);
+  }
+}
+
+void printTime(DateTime now) {
   char date_str[15];
   char time_str[15];
 
