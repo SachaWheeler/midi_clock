@@ -24,6 +24,7 @@ const int VERMONA = 10;
 int prevHour;
 int buttonPin = 7;
 bool once_through = false;
+bool done_15, done_30, done_45 = false;
 
 void setup()
 {
@@ -47,7 +48,8 @@ void setup()
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   }
   //rtc.adjust(DateTime(2022, 10, 13, 10, 59, 55));
-  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  //rtc.adjust(DateTime(2022, 10, 13, 10, 44, 55));
   prevHour = rtc.now().hour();
 
   /*
@@ -73,6 +75,16 @@ void loop()
     // announce the HOUR
     chime_hour(now);
     prevHour = now.hour();
+    done_15 = done_30 = done_45 = false;
+  } else if (!done_15 && now.minute() == 15) {
+    chime_quarter(15);
+    done_15 = true;
+  } else if (!done_30 && now.minute() == 30) {
+    chime_quarter(30);
+    done_30 = true;
+  } else if (!done_45 && now.minute() == 45) {
+    chime_quarter(45);
+    done_45 = true;
   }
 
   /*
@@ -111,8 +123,19 @@ void chime_hour(DateTime now) {
 
   for (int x = 0; x < now.hour(); x++) {
     play_drum(CLAP);
-    if((x+1)%3==0) delay(110);
+    if ((x + 1) % 3 == 0) delay(110);
     delay(90);
+  }
+}
+
+void chime_quarter(int min) {
+  play_drum(KICK);
+  delay(60);
+  play_drum(CLAP);
+  delay(200);
+  for (int x = 0; x < min / 15; x++) {
+    play_drum(SNARE);
+    delay(200);
   }
 }
 
@@ -138,16 +161,4 @@ void playMIDINote(byte channel, byte note, byte velocity)
   Serial.write(noteOnStatus);
   Serial.write(note);
   Serial.write(velocity);
-}
-
-void playDrumBeat(byte note)
-{
-  playMIDINote(VERMONA, note, 100);
-  //Hold note for 60 ms (delay() used for simplicity)
-  delay(60);
-
-  //Turn note off (velocity = 0)
-  playMIDINote(VERMONA, note, 0);
-  //Pause for 60 ms
-  delay(60);
 }
