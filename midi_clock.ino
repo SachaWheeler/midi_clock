@@ -30,6 +30,7 @@ void setup()
 {
   //Set up serial output with standard MIDI baud rate
   Serial.begin(31250);
+  while (!Serial); // wait until Serial is available
 
   lcd.init();
   lcd.backlight();
@@ -43,7 +44,7 @@ void setup()
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // sets the time to the compile time
   }
 
-  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   //rtc.adjust(DateTime(2022, 10, 13, 10, 29, 55));
   prevHour = rtc.now().hour();
 }
