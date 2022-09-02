@@ -37,6 +37,8 @@ int buttonPin = 7;
 bool once_through = false;
 bool done_15, done_30, done_45, backlight = false;
 
+const int BACKLIGHT_TIMEOUT = 5;
+
 void setup() {
   //Set up serial output with standard MIDI baud rate
   Serial.begin(31250);
@@ -80,7 +82,7 @@ void loop() {
     done_45 = true;
   }
 
-  if (backlight && now.second() == 10){
+  if (backlight && now.second() == BACKLIGHT_TIMEOUT){
     lcd.noBacklight();
     backlight = false;
   }
@@ -97,6 +99,7 @@ void play_drum(int drum) {
 void chime_hour(DateTime now) {
   lcd.backlight();
   backlight = true;
+  
   play_drum(KICK);
   delay(110);
   play_drum(KICK);
@@ -112,6 +115,9 @@ void chime_hour(DateTime now) {
 }
 
 void chime_quarter(int min) {
+  lcd.backlight();
+  backlight = true;
+
   play_drum(KICK);
   delay(60);
   play_drum(CLAP);
