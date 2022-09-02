@@ -80,7 +80,7 @@ void loop() {
     done_45 = true;
   }
 
-  if (backlight && now.second() == 15){
+  if (backlight && now.second() == 10){
     lcd.noBacklight();
     backlight = false;
   }
