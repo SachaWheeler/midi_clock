@@ -37,7 +37,7 @@ int buttonPin = 7;
 bool once_through = false;
 bool done_15, done_30, done_45, backlight = false;
 
-const int BACKLIGHT_TIMEOUT = 5;
+const int BACKLIGHT_TIMEOUT = 6; // seconds
 
 void setup() {
   //Set up serial output with standard MIDI baud rate
@@ -67,17 +67,17 @@ void loop() {
   DateTime now = rtc.now();
   printTime(now);
 
-  if (once_through && now.hour() != prevHour) {
+  if (once_through && now.hour() != prevHour && now.second() == 0) {
     chime_hour(now);
     prevHour = now.hour();
     done_15 = done_30 = done_45 = false;
-  } else if (!done_15 && now.minute() == 15) {
+  } else if (!done_15 && now.minute() == 15 && now.second() == 0) {
     chime_quarter(15);
     done_15 = true;
-  } else if (!done_30 && now.minute() == 30) {
+  } else if (!done_30 && now.minute() == 30 && now.second() == 0) {
     chime_quarter(30);
     done_30 = true;
-  } else if (!done_45 && now.minute() == 45) {
+  } else if (!done_45 && now.minute() == 45 && now.second() == 0) {
     chime_quarter(45);
     done_45 = true;
   }
