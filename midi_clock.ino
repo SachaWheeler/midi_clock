@@ -3,20 +3,31 @@
 #include "RTClib.h"
 #include <LiquidCrystal_I2C.h>
 
-LiquidCrystal_I2C lcd(0x27, 16, 2); // set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C lcd(0x27, 16, 2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 RTC_DS3231 rtc;
 
-const int SNARE         = 36;
-const int CLAP          = 37;
-const int HI_HAT_2      = 41;
+const int SNARE = 36;
+const int CLAP = 37;
+const int HI_HAT_2 = 41;
 const int HI_HAT_2_OPEN = 43;
-const int KICK          = 44;
-const int DRUM_1        = 45;
-const int DRUM_2        = 46;
-const int MULTI         = 47;
-const int HI_HAT_1      = 49;
+const int KICK = 44;
+const int DRUM_1 = 45;
+const int DRUM_2 = 46;
+const int MULTI = 47;
+const int HI_HAT_1 = 49;
 const int HI_HAT_1_OPEN = 51;
-const int drums [] = {SNARE, CLAP, HI_HAT_2, HI_HAT_2_OPEN, KICK, DRUM_1, DRUM_2, MULTI, HI_HAT_1, HI_HAT_1_OPEN,};
+const int drums[] = {
+  SNARE,
+  CLAP,
+  HI_HAT_2,
+  HI_HAT_2_OPEN,
+  KICK,
+  DRUM_1,
+  DRUM_2,
+  MULTI,
+  HI_HAT_1,
+  HI_HAT_1_OPEN,
+};
 
 const int MOOG = 1;
 const int VERMONA = 10;
@@ -24,33 +35,33 @@ const int VERMONA = 10;
 int prevHour;
 int buttonPin = 7;
 bool once_through = false;
-bool done_15, done_30, done_45 = false;
+bool done_15, done_30, done_45, backlight = false;
 
-void setup()
-{
+void setup() {
   //Set up serial output with standard MIDI baud rate
   Serial.begin(31250);
-  while (!Serial); // wait until Serial is available
+  while (!Serial)
+    ;  // wait until Serial is available
 
   lcd.init();
-  lcd.backlight();
+  //lcd.backlight();
 
-  if (! rtc.begin()) {
+  if (!rtc.begin()) {
     lcd.print("Couldn't find RTC");
-    while (1);
+    while (1)
+      ;
   }
 
   if (rtc.lostPower()) {
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__))); // sets the time to the compile time
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));  // sets the time to the compile time
   }
 
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   //rtc.adjust(DateTime(2022, 10, 13, 10, 29, 55));
   prevHour = rtc.now().hour();
 }
 
-void loop()
-{
+void loop() {
   DateTime now = rtc.now();
   printTime(now);
 
@@ -69,6 +80,11 @@ void loop()
     done_45 = true;
   }
 
+  if (backlight && now.second() == 15){
+    lcd.noBacklight();
+    backlight = false;
+  }
+
   once_through = true;
 }
 
@@ -79,6 +95,8 @@ void play_drum(int drum) {
 }
 
 void chime_hour(DateTime now) {
+  lcd.backlight();
+  backlight = true;
   play_drum(KICK);
   delay(110);
   play_drum(KICK);
@@ -117,8 +135,7 @@ void printTime(DateTime now) {
   lcd.print(time_str);
 }
 
-void playMIDINote(byte channel, byte note, byte velocity)
-{
+void playMIDINote(byte channel, byte note, byte velocity) {
   //MIDI channels 1-16 are really 0-15
   byte noteOnStatus = 0x90 + (channel - 1);
 
