@@ -59,7 +59,7 @@ void setup() {
   }
 
   //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  //rtc.adjust(DateTime(2022, 10, 13, 10, 29, 55));
+  //rtc.adjust(DateTime(2022, 9, 4, 10, 59, 55));
   prevHour = rtc.now().hour();
 }
 
@@ -82,7 +82,7 @@ void loop() {
     done_45 = true;
   }
 
-  if (backlight && now.second() == BACKLIGHT_TIMEOUT){
+  if (backlight && now.second() == BACKLIGHT_TIMEOUT){ // turn it off after TIMEOUT secs
     lcd.noBacklight();
     backlight = false;
   }
@@ -107,7 +107,7 @@ void chime_hour(DateTime now) {
   play_drum(HI_HAT_1_OPEN);
   delay(200);
 
-  for (int x = 0; x < now.hour(); x++) {
+  for (int x = 0; x < now.hour() % 12; x++) { // modulo 12 
     play_drum(CLAP);
     if ((x + 1) % 3 == 0) delay(110);
     delay(90);
