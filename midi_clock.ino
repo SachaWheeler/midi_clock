@@ -59,8 +59,8 @@ void setup() {
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));  // sets the time to the compile time
   }
 
-  /rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  //rtc.adjust(DateTime(2022, 9, 4, 21, 59, 58));
+  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  //rtc.adjust(DateTime(2022, 9, 4, 21, 29, 58));
   prevHour = rtc.now().hour();
 }
 
@@ -73,13 +73,13 @@ void loop() {
     prevHour = now.hour();
     done_15 = done_30 = done_45 = false;
   } else if (!done_15 && now.minute() == 15 && now.second() == 0) {
-    chime_quarter(15);
+    chime_quarter(now);
     done_15 = true;
   } else if (!done_30 && now.minute() == 30 && now.second() == 0) {
-    chime_quarter(30);
+    chime_quarter(now);
     done_30 = true;
   } else if (!done_45 && now.minute() == 45 && now.second() == 0) {
-    chime_quarter(45);
+    chime_quarter(now);
     done_45 = true;
   }
 
@@ -123,14 +123,20 @@ void chime_hour(DateTime now) {
     delay(90);
   }
   delay(400);
-  playMIDINote(MOOG, hour_tone, 50); // turn it off
+  playMIDINote(MOOG, hour_tone, 50);  // turn it off
   delay(400);
-  playMIDINote(MOOG, hour_tone, 0); // turn it off
+  playMIDINote(MOOG, hour_tone, 0);  // turn it off
 }
 
-void chime_quarter(int min) {
+void chime_quarter(DateTime now) {
   lcd.backlight();
   backlight = true;
+
+  int min = now.minute();
+  int hour_tone = now.hour() + 24;
+
+  playMIDINote(MOOG, hour_tone, 100);  // turn it on
+  delay(90);
 
   play_drum(KICK);
   delay(60);
@@ -140,6 +146,9 @@ void chime_quarter(int min) {
     play_drum(SNARE);
     delay(200);
   }
+
+  delay(400);
+  playMIDINote(MOOG, hour_tone, 0);  // turn it off
 }
 
 void printTime(DateTime now) {
