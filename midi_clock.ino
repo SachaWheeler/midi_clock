@@ -36,8 +36,9 @@ int prevHour;
 int buttonPin = 7;
 bool once_through = false;
 bool done_15, done_30, done_45, backlight = false;
+int prev_seconds = 0;
 
-const int BACKLIGHT_TIMEOUT = 6; // seconds
+const int BACKLIGHT_TIMEOUT = 6;  // seconds
 
 void setup() {
   //Set up serial output with standard MIDI baud rate
@@ -58,8 +59,8 @@ void setup() {
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));  // sets the time to the compile time
   }
 
-  //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  //rtc.adjust(DateTime(2022, 9, 4, 10, 59, 55));
+  /rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  //rtc.adjust(DateTime(2022, 9, 4, 21, 59, 58));
   prevHour = rtc.now().hour();
 }
 
@@ -82,7 +83,7 @@ void loop() {
     done_45 = true;
   }
 
-  if (backlight && now.second() == BACKLIGHT_TIMEOUT){ // turn it off after TIMEOUT secs
+  if (backlight && now.second() == BACKLIGHT_TIMEOUT) {  // turn it off after TIMEOUT secs
     lcd.noBacklight();
     backlight = false;
   }
@@ -99,7 +100,16 @@ void play_drum(int drum) {
 void chime_hour(DateTime now) {
   lcd.backlight();
   backlight = true;
-  
+
+  int hour = now.hour();
+  int hour_tone = hour + 24;
+  int hour_chime = hour;
+  if (hour_chime > 12) hour_chime -= 12;
+
+  // play hour chiume
+  playMIDINote(MOOG, hour_tone, 100);  // turn it on
+  delay(110);
+
   play_drum(KICK);
   delay(110);
   play_drum(KICK);
@@ -107,11 +117,15 @@ void chime_hour(DateTime now) {
   play_drum(HI_HAT_1_OPEN);
   delay(200);
 
-  for (int x = 0; x < now.hour() % 12; x++) { // modulo 12 
+  for (int x = 0; x < hour_chime; x++) {
     play_drum(CLAP);
     if ((x + 1) % 3 == 0) delay(110);
     delay(90);
   }
+  delay(400);
+  playMIDINote(MOOG, hour_tone, 50); // turn it off
+  delay(400);
+  playMIDINote(MOOG, hour_tone, 0); // turn it off
 }
 
 void chime_quarter(int min) {
@@ -132,13 +146,17 @@ void printTime(DateTime now) {
   char date_str[15];
   char time_str[15];
 
-  lcd.setCursor(1, 0);
-  sprintf(date_str, "%d-%02d-%02d", now.year(), now.month(), now.day());
-  lcd.print(date_str);
+  if (prev_seconds != (int)now.second()) {
+    sprintf(date_str, "%d-%02d-%02d", now.year(), now.month(), now.day());
+    lcd.setCursor(1, 0);
+    lcd.print(date_str);
 
-  lcd.setCursor(1, 1);
-  sprintf(time_str, "%02d:%02d:%02d", now.hour(), now.minute(), now.second());
-  lcd.print(time_str);
+    sprintf(time_str, "%02d:%02d:%02d", now.hour(), now.minute(), now.second());
+    lcd.setCursor(1, 1);
+    lcd.print(time_str);
+
+    prev_seconds = now.second();
+  }
 }
 
 void playMIDINote(byte channel, byte note, byte velocity) {
