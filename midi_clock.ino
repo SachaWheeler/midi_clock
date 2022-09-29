@@ -44,7 +44,7 @@ int prev_seconds = 0;
 
 const int BACKLIGHT_TIMEOUT = 6;  // seconds
 bool LUX = false;
-const int LUX_MIN = 4;
+const int LUX_MIN = 3;
 
 void setup() {
   //Set up serial output with standard MIDI baud rate
