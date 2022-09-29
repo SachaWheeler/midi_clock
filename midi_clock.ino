@@ -44,6 +44,7 @@ int prev_seconds = 0;
 
 const int BACKLIGHT_TIMEOUT = 6;  // seconds
 bool LUX = false;
+const int LUX_MIN = 4;
 
 void setup() {
   //Set up serial output with standard MIDI baud rate
@@ -84,7 +85,7 @@ void loop() {
   //lcd.print(veml.readALS());
   lcd.setCursor(12, 1);
   lcd.print(veml.readLux());
-  if (veml.readLux() >= 5) {
+  if (veml.readLux() >= LUX_MIN) {
     LUX = true;
   } else {
     LUX = false;
