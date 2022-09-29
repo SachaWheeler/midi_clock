@@ -3,6 +3,10 @@
 #include "RTClib.h"
 #include <LiquidCrystal_I2C.h>
 
+#include "Adafruit_VEML7700.h"
+
+Adafruit_VEML7700 veml = Adafruit_VEML7700();  // lux sensor
+
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 RTC_DS3231 rtc;
 
@@ -39,6 +43,7 @@ bool done_15, done_30, done_45, backlight = false;
 int prev_seconds = 0;
 
 const int BACKLIGHT_TIMEOUT = 6;  // seconds
+bool LUX = false;
 
 void setup() {
   //Set up serial output with standard MIDI baud rate
@@ -62,11 +67,28 @@ void setup() {
   //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   //rtc.adjust(DateTime(2022, 9, 4, 21, 29, 58));
   prevHour = rtc.now().hour();
+
+  if (!veml.begin()) {
+    lcd.print("Lux Sensor not found");
+    while (1)
+      ;
+  }
 }
 
 void loop() {
   DateTime now = rtc.now();
   printTime(now);
+
+  // get lighting
+  //lcd.setCursor(12, 0);
+  //lcd.print(veml.readALS());
+  lcd.setCursor(12, 1);
+  lcd.print(veml.readLux());
+  if (veml.readLux() >= 5) {
+    LUX = true;
+  } else {
+    LUX = false;
+  }
 
   if (once_through && now.hour() != prevHour && now.second() == 0) {
     chime_hour(now);
@@ -101,54 +123,60 @@ void chime_hour(DateTime now) {
   lcd.backlight();
   backlight = true;
 
-  int hour = now.hour();
-  int hour_tone = hour + 24;
-  int hour_chime = hour;
-  if (hour_chime > 12) hour_chime -= 12;
+  if (LUX) {
 
-  // play hour chiume
-  playMIDINote(MOOG, hour_tone, 100);  // turn it on
-  delay(110);
+    int hour = now.hour();
+    int hour_tone = hour + 24;
+    int hour_chime = hour;
+    if (hour_chime > 12) hour_chime -= 12;
 
-  play_drum(KICK);
-  delay(110);
-  play_drum(KICK);
-  delay(150);
-  play_drum(HI_HAT_1_OPEN);
-  delay(200);
+    // play hour chiume
+    playMIDINote(MOOG, hour_tone, 100);  // turn it on
+    delay(110);
 
-  for (int x = 0; x < hour_chime; x++) {
-    play_drum(CLAP);
-    if ((x + 1) % 3 == 0) delay(110);
-    delay(90);
+    play_drum(KICK);
+    delay(110);
+    play_drum(KICK);
+    delay(150);
+    play_drum(HI_HAT_1_OPEN);
+    delay(200);
+
+    for (int x = 0; x < hour_chime; x++) {
+      play_drum(CLAP);
+      if ((x + 1) % 3 == 0) delay(110);
+      delay(90);
+    }
+    delay(400);
+    playMIDINote(MOOG, hour_tone, 50);  // turn it off
+    delay(400);
+    playMIDINote(MOOG, hour_tone, 0);  // turn it off
   }
-  delay(400);
-  playMIDINote(MOOG, hour_tone, 50);  // turn it off
-  delay(400);
-  playMIDINote(MOOG, hour_tone, 0);  // turn it off
 }
 
 void chime_quarter(DateTime now) {
   lcd.backlight();
   backlight = true;
 
-  int min = now.minute();
-  int hour_tone = now.hour() + 24;
+  if (LUX) {
 
-  playMIDINote(MOOG, hour_tone, 100);  // turn it on
-  delay(90);
+    int min = now.minute();
+    int hour_tone = now.hour() + 24;
 
-  play_drum(KICK);
-  delay(60);
-  play_drum(CLAP);
-  delay(200);
-  for (int x = 0; x < min / 15; x++) {
-    play_drum(SNARE);
+    playMIDINote(MOOG, hour_tone, 100);  // turn it on
+    delay(90);
+
+    play_drum(KICK);
+    delay(60);
+    play_drum(CLAP);
     delay(200);
-  }
+    for (int x = 0; x < min / 15; x++) {
+      play_drum(SNARE);
+      delay(200);
+    }
 
-  delay(400);
-  playMIDINote(MOOG, hour_tone, 0);  // turn it off
+    delay(400);
+    playMIDINote(MOOG, hour_tone, 0);  // turn it off
+  }
 }
 
 void printTime(DateTime now) {
