@@ -139,7 +139,7 @@ void chime_hour(DateTime now) {
     play_drum(KICK);
     delay(150);
     play_drum(HI_HAT_1_OPEN);
-    delay(200);
+    delay(250);
 
     for (int x = 0; x < hour_chime; x++) {
       play_drum(CLAP);
@@ -168,7 +168,7 @@ void chime_quarter(DateTime now) {
     play_drum(KICK);
     delay(60);
     play_drum(CLAP);
-    delay(200);
+    delay(250);
     for (int x = 0; x < min / 15; x++) {
       play_drum(SNARE);
       delay(200);
