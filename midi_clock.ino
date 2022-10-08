@@ -62,7 +62,8 @@ void setup() {
   }
 
   if (rtc.lostPower()) {
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));  // sets the time to the compile time
+    // not necessary
+    //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));  // sets the time to the compile time
   }
 
   //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
