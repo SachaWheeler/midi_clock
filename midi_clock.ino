@@ -67,7 +67,7 @@ void setup() {
   }
 
   //rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  //rtc.adjust(DateTime(2022, 9, 4, 21, 29, 58));
+  //rtc.adjust(DateTime(2022, 9, 4, 21, 44, 58));
   prevHour = rtc.now().hour();
 
   if (!veml.begin()) {
@@ -178,6 +178,19 @@ void chime_quarter(DateTime now) {
 
     delay(400);
     playMIDINote(MOOG, hour_tone, 0);  // turn it off
+
+    delay(10);
+    int third = (min / 15) + 2;  // a minor third being 3 semitones, etc.
+    playMIDINote(MOOG, hour_tone + third, 100);  // play the third
+
+    delay(400);
+    playMIDINote(MOOG, hour_tone + third, 0);  // turn it off
+
+    delay(10);
+    playMIDINote(MOOG, hour_tone + 7, 100);  // play the fifth (7 semitones)
+
+    delay(400);
+    playMIDINote(MOOG, hour_tone + 7, 0);  // turn it off
   }
 }
 
