@@ -53,7 +53,7 @@ void setup() {
     ;  // wait until Serial is available
 
   lcd.init();
-  //lcd.backlight();
+  lcd.backlight();
 
   if (!rtc.begin()) {
     lcd.print("Couldn't find RTC");
@@ -75,6 +75,8 @@ void setup() {
     while (1)
       ;
   }
+  delay(10);
+  lcd.noBacklight();
 }
 
 void loop() {
