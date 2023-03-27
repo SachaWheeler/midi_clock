@@ -182,7 +182,7 @@ void chime_quarter(DateTime now) {
     playMIDINote(MOOG, hour_tone, 0);  // turn it off
 
     delay(10);
-    int third = (min / 15) + 2;  // a minor third being 3 semitones, etc.
+    int third = (min / 15) + 2;                  // a minor third being 3 semitones, etc.
     playMIDINote(MOOG, hour_tone + third, 100);  // play the third
 
     delay(400);
